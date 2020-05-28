@@ -14,8 +14,8 @@ void draw_level(const level *lvl){
         }
     }
 }
-
-void draw_state(const level *lvl, const state *sta){
+//void draw_state(const level *lvl, const state *sta){
+void draw_state(const level *lvl,const state *sta, Texture2D player_sprite, Texture2D brute_sprite, Texture2D minion_sprite, Rectangle frame_player, Rectangle *frame_brute, Rectangle *frame_minion, int *frame_actual_enemigo, int *frame_cont_enemigo){
 
     // Initialize a camera to be used as drawing context
     Camera2D cam;
@@ -38,17 +38,34 @@ void draw_state(const level *lvl, const state *sta){
 
     // Draw enemies
     for(int i=0;i<sta->n_enemies;i++){
+    
         // Get a copy of the enemy entity
         entity ent = sta->enemies[i].ent;
         // Initialize a Vector2 that represents the center of the entity position
+        
         Vector2 vec = {ent.x,ent.y};
         // Draw a circle with the radius of the entity, color depends on the enemy type
+        // Se cambia el dibujar circulos para dibujar los sprites dependiendo del tipo
+        
         if(sta->enemies[i].kind == MINION){
-            DrawCircleV(vec,ent.rad,YELLOW);
-        }else{
-            DrawCircleV(vec,ent.rad,RED);
+        //     DrawCircleV(vec,ent.rad,YELLOW);
+        // }else{
+        //     DrawCircleV(vec,ent.rad,RED);
+            if (*frame_cont_enemigo >= (60/FRAME_SPEED)){
+            *frame_cont_enemigo = 0;
+            *frame_actual_enemigo++;
+            if(*frame_actual_enemigo > 5) *frame_actual_enemigo = 0;
+            frame_minion->x= (float)*frame_actual_enemigo*(float)minion_sprite.width/4;    
         }
+        DrawTextureRec(minion_sprite, *frame_minion, vec , WHITE);
     }
+    	else{
+            if(*frame_actual_enemigo > 5) *frame_actual_enemigo = 0;
+            frame_brute->x = (float)*frame_actual_enemigo*(float)brute_sprite.width/4;
+            DrawTextureRec(brute_sprite, *frame_brute, vec, WHITE);
+    	
+    }	
+    }    
 
     // Draw player
     {
@@ -56,8 +73,12 @@ void draw_state(const level *lvl, const state *sta){
         entity ent = sta->pla.ent;
         // Initialize a Vector2 that represents the center of the entity position
         Vector2 vec = {ent.x,ent.y};
+        
         // Draw a circle with the radius of the entity
-        DrawCircleV(vec,ent.rad,BLUE);
+        //DrawCircleV(vec,ent.rad,BLUE);
+        
+        //Dibujar textura acorde a la velocidad del jugador y los frames
+        DrawTextureRec(player_sprite, frame_player, vec, WHITE);
     }
 
     // Draw bullets
